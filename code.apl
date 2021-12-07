@@ -156,14 +156,14 @@ oxygen × cotwo
 
 ⍝   ==  Day 4  ==
 
-draw ← 59,91,13,82,8, ...
+draws ← 59,91,13,82,8, ...
 boards ← 100 5 5⍴ 42 47 77 49 67 64 82 ...
 
 ⍝ Transform a board into an array of every possible
 ⍝ line, column or diagonal. Then, take drawn numbers
-⍝ one by one and check if any combination of 5 drawn
-⍝ numbers matches any line, column or diagonal.
-⍝ If yes, return score.
+⍝ one by one and check if any line, column or diagonal
+⍝ is entirely present in the drawn numbers. This
+⍝ determines a winner.
 
 cols ← {a←⍵ ⋄ {a[;⍵]}¨(⍳5)}
 rows ← {a←⍵ ⋄ {a[⍵;]}¨(⍳5)}
@@ -175,15 +175,19 @@ rows ← {a←⍵ ⋄ {a[⍵;]}¨(⍳5)}
 ltr_diag ← {a←⍵ ⋄ {a[;⍵][⍵]}¨(⍳5)}
 rtl_diag ← {a←⍵ ⋄ {a[;⍵][6-⍵]}¨(⍳5)}
 
-⍝           a←⍵                     -> assign a temporary variable
+⍝           a←⍵ ⋄                   -> assign a temporary variable, then
 ⍝                 {a[;⍵][⍵]}        -> get the ⍵th column, ⍵th row
 ⍝                           ¨(⍳5)   -> apply from 1 to 5
 
 combinations ← {(⊂rtl_diag ⍵), (⊂ltr_diag ⍵), (rows ⍵), (cols ⍵)}
 
-⍝ Permutations are apparently hard to do in APL,
-⍝ so I'm borrowing this one from the internet.
-⍝ Understanding it is left as exercise to the reader.
-⍝ Taken from: https://www.dyalog.com/blog/2015/07/permutations/
+winner ← {c←⍺ ⋄ (⌈/{+/⍵∊(draws[⍳c])}¨(combinations boards[⍵;;]))=5}
+⍝                                    (combinations boards[⍵;;])      -> generate lines, columns and diagonals of board ⍵
+⍝                  {+/⍵∊(draws[⍳c])}                                 -> count how many elements of ⍵ are in the c first draws
+⍝                                   ¨                                -> count for every combination
+⍝               (⌈/                                            )     -> find the combination with the highest number of matches
+⍝                                                               =5   -> and check to see if its 5 to see if we have a winner
 
-perm ← {{,[⍳2]↑(⊂⊂⎕io,1+⍵)⌷¨⍒¨↓∘.=⍨⍳1+1↓⍴⍵}⍣⍵⍉⍪⍬}
+(⍳((⍴ draws))) ∘.winner (⍳(⍴ boards)[1])
+
+⍝ Use outer product to check every board, for every drawing
