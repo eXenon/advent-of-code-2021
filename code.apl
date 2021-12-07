@@ -102,3 +102,56 @@ g←{(0⌈⍵)÷⍵}¨((+/⍉d=1)-(+/⍉d=0))
 
 ⍝     === Part 2 ===
 
+mc←{{(0⌈⍵)÷⍵}¨((+/⍉⍵=1)-(+/⍉⍵=0))}
+
+⍝ Define mc to find the most common bit in a vector.
+⍝ This uses the same trick as with part 1, but as a function.
+⍝ Thankfully, APL defaults to 0÷0 = 1, so our fallback value
+⍝ in case of equal number of 0s and 1s is correct.
+
+bm←{⍺[1]=1: ⍉(⍉⍵[;⍺[2]]) ⋄ 1 : ⍉(1-⍉⍵[;⍺[2]])}
+
+⍝ Define bm, a function that will create a bitmask
+⍝ to filter a matrix based on the first bit.
+
+⍝ {⍺[1]=1:                                } -> if ⍺[1] is 1 (we try to find all the rows starting with 1)
+⍝           ⍉⍵[;⍺[2]]                       -> return the ⍺[2] column as a row, it will be the mask
+⍝         ⍉(         )                      -> re-transpose to get the original shape
+⍝                     ⋄ 1 : ⍉(1-⍉⍵[;⍺[2]])  -> else, return the inverse of the ⍺[2] row.
+
+⍝ Putting this all together, we can build
+f←{⍉((mc ⍵)[⍺] ⍺ bm ⍵)/⍉⍵}
+
+⍝    (mc ⍵)[⍺]                  -> Get the most common bit of the ⍺ column of ⍵
+⍝   (          ⍺ bm ⍵)          -> Put it together to generate a bitmask for the ⍺ column of ⍵
+⍝                     /⍉⍵       -> Apply the bitmask to ⍵ (transposition required because we want to filter rows)
+⍝  ⍉                            -> Transpose back to get the original shape of ⍵
+⍝
+⍝ In aggregate, this function keeps only the rows of ⍵ with the most common bit.
+⍝ Equality is handled by mc and will default to keeping 0s.
+⍝ Now we just have to iteratively apply this to each column of our data:
+
+oxygen←2⊥↑f/(⌽⍳12),⊂d
+
+⍝           (⌽⍳12)      -> numbers for 12 to 1, our columns
+⍝                 ,⊂d   -> initial state of our foldr
+⍝         f/            -> fold using f
+⍝      2⊥↑              -> convert to row, then into base 10
+
+⍝ For our CO2 scrubber rating, we use the same functions, but we
+⍝ change the most-common function to use least-common (with default to 0).
+⍝ To build this least-common, we can just take the opposite of most-common.
+
+lc←{1-mc ⍵}
+ff←{⍉((lc ⍵)[⍺] ⍺ bm ⍵)/⍉⍵}
+cotwo←2⊥↑f2/(⌽⍳9),⊂d
+
+⍝ Note: to get the CO2 rating, we only need 9 iterations
+⍝ of the algorithm. I could fix it to not filter out everything
+⍝ after too many iterations, but this is good enough ^^.
+
+oxygen × cotwo
+
+
+
+⍝   ==  Day 4  ==
