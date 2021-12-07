@@ -10,7 +10,7 @@ a ← 173 179 200 210 ...
 ⍝ +/            make the sum of the vector, counting the number of negative results
 
 
-w←a+((1↓a),0)+((2↓a),0,0)
+w ← a+((1↓a),0)+((2↓a),0,0)
 
 ⍝ Sum a with itself twice, shifted each time, to calculate the windows
 
@@ -24,7 +24,7 @@ w←a+((1↓a),0)+((2↓a),0,0)
 ⍝   ==  Day 2  ==
 
 d ← (⊂'forward'),6,(⊂'forward'),8 ...
-c←{⍵[1]≡(⊂'forward'):⍵[2]⋄⍵[1]≡(⊂'down'):⍵[2]×0J1⋄1:⍵[2]×0J¯1}
+c ← {⍵[1]≡(⊂'forward'):⍵[2]⋄⍵[1]≡(⊂'down'):⍵[2]×0J1⋄1:⍵[2]×0J¯1}
 
 ⍝  Convert size 2 vectors into a number:
 ⍝   <forward, n> -> n
@@ -45,7 +45,7 @@ c←{⍵[1]≡(⊂'forward'):⍵[2]⋄⍵[1]≡(⊂'down'):⍵[2]×0J1⋄1:⍵[2
 
 ⍝     === Part 2 ===
 
-acc←{(⍵[1]+(9○⍺)+(⍵[2]×(9○⍺)×(0J1))),(⍵[2]+(11○⍺))}
+acc ← {(⍵[1]+(9○⍺)+(⍵[2]×(9○⍺)×(0J1))),(⍵[2]+(11○⍺))}
 
 ⍝  acc takes in a 2-vector and a complex number (the command) and calculates
 ⍝  the new position (X is the real part, Y is the complex part) and new aim
@@ -76,13 +76,13 @@ acc←{(⍵[1]+(9○⍺)+(⍵[2]×(9○⍺)×(0J1))),(⍵[2]+(11○⍺))}
 ⍝ First observation: gamma is the binary inverse of epsilon,
 ⍝ we just need to calculate one of them.
 
-d←1000 12⍴ 1 0 1 0 0 0 0 0 1 1 0 0 0 1 1 1  ....
+d ← 1000 12⍴ 1 0 1 0 0 0 0 0 1 1 0 0 0 1 1 1  ....
 
 ⍝  Get the data as a matrix of 1000x12 digits
 
 ⍝ The first step gets us gamma :
 
-g←{(0⌈⍵)÷⍵}¨((+/⍉d=1)-(+/⍉d=0))
+g ← {(0⌈⍵)÷⍵}¨((+/⍉d=1)-(+/⍉d=0))
 
 ⍝                    (+/⍉d=0)  -> count the number of 0's in each row of the transpose of d (meaning the columns of d)
 ⍝           (+/⍉d=1)           -> same with 1's
@@ -102,49 +102,49 @@ g←{(0⌈⍵)÷⍵}¨((+/⍉d=1)-(+/⍉d=0))
 
 ⍝     === Part 2 ===
 
-mc←{{(0⌈⍵)÷⍵}¨((+/⍉⍵=1)-(+/⍉⍵=0))}
+mc ← {{(0⌈⍵)÷⍵}¨((+/⍉⍵=1)-(+/⍉⍵=0))}
 
 ⍝ Define mc to find the most common bit in a vector.
 ⍝ This uses the same trick as with part 1, but as a function.
 ⍝ Thankfully, APL defaults to 0÷0 = 1, so our fallback value
 ⍝ in case of equal number of 0s and 1s is correct.
 
-bm←{⍺[1]=1: ⍉(⍉⍵[;⍺[2]]) ⋄ 1 : ⍉(1-⍉⍵[;⍺[2]])}
+bm ← {⍺[1]=1: ⍉(⍉⍵[;⍺[2]]) ⋄ 1 : ⍉(1-⍉⍵[;⍺[2]])}
 
 ⍝ Define bm, a function that will create a bitmask
 ⍝ to filter a matrix based on the first bit.
 
-⍝ {⍺[1]=1:                                } -> if ⍺[1] is 1 (we try to find all the rows starting with 1)
-⍝           ⍉⍵[;⍺[2]]                       -> return the ⍺[2] column as a row, it will be the mask
-⍝         ⍉(         )                      -> re-transpose to get the original shape
-⍝                     ⋄ 1 : ⍉(1-⍉⍵[;⍺[2]])  -> else, return the inverse of the ⍺[2] row.
+⍝   {⍺[1]=1:                                } -> if ⍺[1] is 1 (we try to find all the rows starting with 1)
+⍝             ⍉⍵[;⍺[2]]                       -> return the ⍺[2] column as a row, it will be the mask
+⍝           ⍉(         )                      -> re-transpose to get the original shape
+⍝                       ⋄ 1 : ⍉(1-⍉⍵[;⍺[2]])  -> else, return the inverse of the ⍺[2] row.
 
 ⍝ Putting this all together, we can build
-f←{⍉((mc ⍵)[⍺] ⍺ bm ⍵)/⍉⍵}
+f ← {⍉((mc ⍵)[⍺] ⍺ bm ⍵)/⍉⍵}
 
-⍝    (mc ⍵)[⍺]                  -> Get the most common bit of the ⍺ column of ⍵
-⍝   (          ⍺ bm ⍵)          -> Put it together to generate a bitmask for the ⍺ column of ⍵
-⍝                     /⍉⍵       -> Apply the bitmask to ⍵ (transposition required because we want to filter rows)
-⍝  ⍉                            -> Transpose back to get the original shape of ⍵
+⍝      (mc ⍵)[⍺]                  -> Get the most common bit of the ⍺ column of ⍵
+⍝     (          ⍺ bm ⍵)          -> Put it together to generate a bitmask for the ⍺ column of ⍵
+⍝                       /⍉⍵       -> Apply the bitmask to ⍵ (transposition required because we want to filter rows)
+⍝    ⍉                            -> Transpose back to get the original shape of ⍵
 ⍝
 ⍝ In aggregate, this function keeps only the rows of ⍵ with the most common bit.
 ⍝ Equality is handled by mc and will default to keeping 0s.
 ⍝ Now we just have to iteratively apply this to each column of our data:
 
-oxygen←2⊥↑f/(⌽⍳12),⊂d
+oxygen ← 2⊥↑f/(⌽⍳12),⊂d
 
-⍝           (⌽⍳12)      -> numbers for 12 to 1, our columns
-⍝                 ,⊂d   -> initial state of our foldr
-⍝         f/            -> fold using f
-⍝      2⊥↑              -> convert to row, then into base 10
+⍝         (⌽⍳12)      -> numbers for 12 to 1, our columns
+⍝               ,⊂d   -> initial state of our foldr
+⍝       f/            -> fold using f
+⍝    2⊥↑              -> convert to row, then into base 10
 
 ⍝ For our CO2 scrubber rating, we use the same functions, but we
 ⍝ change the most-common function to use least-common (with default to 0).
 ⍝ To build this least-common, we can just take the opposite of most-common.
 
-lc←{1-mc ⍵}
-ff←{⍉((lc ⍵)[⍺] ⍺ bm ⍵)/⍉⍵}
-cotwo←2⊥↑f2/(⌽⍳9),⊂d
+lc ← {1-mc ⍵}
+ff ← {⍉((lc ⍵)[⍺] ⍺ bm ⍵)/⍉⍵}
+cotwo ← 2⊥↑f2/(⌽⍳9),⊂d
 
 ⍝ Note: to get the CO2 rating, we only need 9 iterations
 ⍝ of the algorithm. I could fix it to not filter out everything
@@ -155,3 +155,35 @@ oxygen × cotwo
 
 
 ⍝   ==  Day 4  ==
+
+draw ← 59,91,13,82,8, ...
+boards ← 100 5 5⍴ 42 47 77 49 67 64 82 ...
+
+⍝ Transform a board into an array of every possible
+⍝ line, column or diagonal. Then, take drawn numbers
+⍝ one by one and check if any combination of 5 drawn
+⍝ numbers matches any line, column or diagonal.
+⍝ If yes, return score.
+
+cols ← {a←⍵ ⋄ {a[;⍵]}¨(⍳5)}
+rows ← {a←⍵ ⋄ {a[⍵;]}¨(⍳5)}
+
+⍝       a←⍵                  -> assign a temporary variable
+⍝             {a[⍵;]}        -> get the ⍵th row
+⍝                    ¨(⍳5)   -> apply from 1 to 5
+
+ltr_diag ← {a←⍵ ⋄ {a[;⍵][⍵]}¨(⍳5)}
+rtl_diag ← {a←⍵ ⋄ {a[;⍵][6-⍵]}¨(⍳5)}
+
+⍝           a←⍵                     -> assign a temporary variable
+⍝                 {a[;⍵][⍵]}        -> get the ⍵th column, ⍵th row
+⍝                           ¨(⍳5)   -> apply from 1 to 5
+
+combinations ← {(⊂rtl_diag ⍵), (⊂ltr_diag ⍵), (rows ⍵), (cols ⍵)}
+
+⍝ Permutations are apparently hard to do in APL,
+⍝ so I'm borrowing this one from the internet.
+⍝ Understanding it is left as exercise to the reader.
+⍝ Taken from: https://www.dyalog.com/blog/2015/07/permutations/
+
+perm ← {{,[⍳2]↑(⊂⊂⎕io,1+⍵)⌷¨⍒¨↓∘.=⍨⍳1+1↓⍴⍵}⍣⍵⍉⍪⍬}
