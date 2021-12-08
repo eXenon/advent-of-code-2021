@@ -234,13 +234,11 @@ vhl ← ({(⍵[1]=⍵[3])∨(⍵[2]=⍵[3])}¨lines)/lines
 ⍝ Keep only lines where x1=x2 or y1=y2
 
 ⍝ The given lines can be drawn on a 1000x1000 grid.
-⍝ The strategy will be to get a bitmask for every line,
-⍝ showing wether a given point is underneath that line.
-⍝ Then we can sum every bitmap and count the number of
-⍝ cells that have a number greater than 2.
+⍝ The strategy will be to get every point covered by
+⍝ every line. Then count how many appear more than
+⍝ once.
 
-isunder ← {((⍵[1]=⍵[3])∧(⍵[1]=⍺[1])∧(((⍵[2]≤⍺[2])∧(⍺[2]≤⍵[4]))∨(⍵[4]≤⍺[2])∧(⍺[2]≤⍵[2])))∨((⍵[2]=⍵[4])∧(⍵[2]=⍺[2])∧(((⍵[1]≤⍺[1])∧(⍺[1]≤⍵[3]))∨(⍵[3]≤⍺[1])∧(⍺[1]≤⍵[1])))}
-
-⍝ This boils down to: 
-⍝   - x1 = x3 = ⍺x and ⍺y in between y1 and y2
-⍝   - or y1 = y3 = ⍺y and ⍺x in between x1 and x2
+points ← {sx ← ⍵[1] ⋄ sy ← ⍵[2] ⋄ ex ← ⍵[3] ⋄ ey ← ⍵[4] ⋄ l ← ((ex - sx)*2)+((ey - sy)*2)*0.5 ⋄ {((sx + (((ex - sx)÷l)×⍵))×1000) + (sy + ((ey - sy)÷l)×⍵)}¨((⍳(l+1)) - 1)}
+{(points ↑⍺),⍵}/vhl,⍬
+occ ← {+/(⍵=(↑{(points ↑⍺),⍵}/vhl,⍬))}
++/({(occ ⍵) > 1}¨(≠↑{(points↑⍺),⍵}/vhl,⍬)/↑{(points↑⍺),⍵}/vhl,⍬)
