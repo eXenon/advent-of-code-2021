@@ -188,6 +188,59 @@ winner ← {c←⍺ ⋄ (⌈/{+/⍵∊(draws[⍳c])}¨(combinations boards[⍵;;
 ⍝               (⌈/                                            )     -> find the combination with the highest number of matches
 ⍝                                                               =5   -> and check to see if its 5 to see if we have a winner
 
-(⍳((⍴ draws))) ∘.winner (⍳(⍴ boards)[1])
+winners ← ⍉((⍳(⍴ draws)) ∘.winner (⍳(⍴ boards)[1]))
 
-⍝ Use outer product to check every board, for every drawing
+⍝ Use outer product to check every board, for every drawing.
+⍝ The result is a binary mask of 1 board per line, 1 column
+⍝ per additional drawed number.
+⍝ Now, we can find the earliest winner, then calculate its score.
+
+{(⌊/⍵),(⍵⍳⌊/⍵)}({(winners[⍵;] / (⍳100))[1]}¨(⍳100))
+
+⍝                       winners[⍵;]                       -> take all the wins of board ⍵
+⍝                                   / (⍳100)              -> use them as a binary mask to find their indices
+⍝                     {(                    )[1]}         -> take the first win
+⍝                    (                           ¨(⍳100)) -> iterate over every board
+⍝     {      (⍵⍳⌊/⍵)}                                     -> find the index of the minimum (i.e. the first winner)
+⍝      (⌊/⍵),                                             -> and the minimum itself (i.e. the number of draws for the first winner)
+
+score ← {draws[⍺] × +/(1-(,boards[⍵;;]) ∊ draws[⍳⍺]) / (,boards[⍵;;])}
+
+⍝        draws[⍺]                                                       -> the last number after ⍺ draws
+⍝                        (,boards[⍵;;]) ∊ draws[⍳⍺]                     -> a binary mask of all the numbers of board ⍵ that have been drawn after ⍺ draws
+⍝                     (1-                          )                    -> invert the mask
+⍝                                                    / (,boards[⍵;;])   -> apply the mask to board ⍵
+⍝                   +/                                                  -> make the sum of the resulting numbers
+⍝                 ×                                                     -> and multiply                                      
+
+⍝     === Part 2 ===
+
+⍝ Same procedure as above, but instead of the first winner,
+⍝ we find the last winner.
+
+{(⌈/⍵),(⍵⍳⌈/⍵)}({(winners[⍵;] / (⍳100))[1]}¨(⍳100))
+
+
+
+⍝   ==  Day 5  ==
+
+data ← 500 4 ⍴ 599,531,599 ...
+lines ← {data[⍵;]}¨⍳500
+
+⍝       {data[⍵;]}¨⍳500 -> split up the data into a vector of size 4 vectors
+
+vhl ← ({(⍵[1]=⍵[3])∨(⍵[2]=⍵[3])}¨lines)/lines
+
+⍝ Keep only lines where x1=x2 or y1=y2
+
+⍝ The given lines can be drawn on a 1000x1000 grid.
+⍝ The strategy will be to get a bitmask for every line,
+⍝ showing wether a given point is underneath that line.
+⍝ Then we can sum every bitmap and count the number of
+⍝ cells that have a number greater than 2.
+
+isunder ← {((⍵[1]=⍵[3])∧(⍵[1]=⍺[1])∧(((⍵[2]≤⍺[2])∧(⍺[2]≤⍵[4]))∨(⍵[4]≤⍺[2])∧(⍺[2]≤⍵[2])))∨((⍵[2]=⍵[4])∧(⍵[2]=⍺[2])∧(((⍵[1]≤⍺[1])∧(⍺[1]≤⍵[3]))∨(⍵[3]≤⍺[1])∧(⍺[1]≤⍵[1])))}
+
+⍝ This boils down to: 
+⍝   - x1 = x3 = ⍺x and ⍺y in between y1 and y2
+⍝   - or y1 = y3 = ⍺y and ⍺x in between x1 and x2
