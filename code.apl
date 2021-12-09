@@ -328,3 +328,21 @@ fish←{(⌽↑{⍵,(⍵ ff ⍺)}/(⌽⍳(⍵+(8-⍺))),⊂⍬)[1]}
 
 
 ⍝   ==  Day 7  ==
+
+data ← 1101,1,29,67,1102, ...
+
+⌊/{+/|¨(data - ⍵)}¨(⍳1000)
+
+⍝        (data - ⍵)           -> substract current candidate position from original positions
+⍝      |¨                     -> apply absolute value
+⍝    +/                       -> sum all fuel consumptions
+⍝   {              }¨(⍳1000)  -> apply to all candidates from 1 to 1000
+⍝ ⌊/                          -> find smallest
+
+⍝     === Part 2 ===
+
+⍝ For the new variation, just change the way the fuel
+⍝ consumption is computed.
+⍝ For n steps, the consumption is now n*(n+1)/2.
+
+⌊/{+/{(|⍵)×((|⍵)+1)÷2}¨(data - ⍵)}¨(⍳1000)
