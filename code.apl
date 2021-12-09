@@ -238,7 +238,31 @@ vhl ← ({(⍵[1]=⍵[3])∨(⍵[2]=⍵[3])}¨lines)/lines
 ⍝ every line. Then count how many appear more than
 ⍝ once.
 
-points ← {sx ← ⍵[1] ⋄ sy ← ⍵[2] ⋄ ex ← ⍵[3] ⋄ ey ← ⍵[4] ⋄ l ← ((ex - sx)*2)+((ey - sy)*2)*0.5 ⋄ {((sx + (((ex - sx)÷l)×⍵))×1000) + (sy + ((ey - sy)÷l)×⍵)}¨((⍳(l+1)) - 1)}
-{(points ↑⍺),⍵}/vhl,⍬
+step ← {⍵[1]=⍵[2]: 0 ⋄ 1: (⍵[2]-⍵[1])÷(|(⍵[2]-⍵[1]))}
+
+⍝       ⍵[1]=⍵[2]: 0 ⋄                                 -> if both coordinates are equal, the step is 0
+⍝                      1: (⍵[2]-⍵[1])÷(|(⍵[2]-⍵[1]))}  -> else the step is (x1 - x0)/abs(x1 - x0)
+
+points ← {x ← ⍵[1] ⋄ y ← ⍵[3] ⋄ sx ← step ⍵[1] ⍵[3] ⋄ sy ← step ⍵[2] ⍵[4] ⋄ c ← ⌈(|(⍵[3] - ⍵[1]), |(⍵[4] - ⍵[2])) ⋄ {(x + (sx×⍵)), (y + (sy×⍵))}¨((⍳(c+1)) - 1)}
+
+⍝         x ← ⍵[1] ⋄ y ← ⍵[3] ⋄                                                                                                                                  -> assign x and y as the starting point of the line
+⍝                               sx ← step ⍵[1] ⍵[3] ⋄ sy ← step ⍵[2] ⍵[4] ⋄                                                                                      -> assign +1 or -1 depending on the direction of the line on a particular axis
+⍝                                                                           c ← ⌈(|(⍵[3] - ⍵[1]), |(⍵[4] - ⍵[2])) ⋄                                              -> assign the number of increments between the most far away points
+⍝                                                                                                                   {(x + (sx×⍵)), (y + (sy×⍵))}¨((⍳(c+1)) - 1)} -> the points are simply incremental steps away from the starting point
+
 occ ← {+/(⍵=(↑{(points ↑⍺),⍵}/vhl,⍬))}
+
+⍝             {(points ↑⍺),⍵}/vhl,⍬     -> foldr over the lines the accumulate all the points
+⍝           (↑                     )    -> make into a single long vector
+⍝      +/(⍵=                        )   -> count occurrences of ⍵
+
 +/({(occ ⍵) > 1}¨(≠↑{(points↑⍺),⍵}/vhl,⍬)/↑{(points↑⍺),⍵}/vhl,⍬)
+
+⍝ Count the points that are occuring more than once
+
+⍝     === Part 2 ===
+
+⍝ Because the way we generate the points of a line
+⍝ is generic enough, we can simple reuse the code
+⍝ from the previous method, skipping the filtering
+⍝ step that generates vhl.
