@@ -92,4 +92,4 @@ translate ← {i ← ,↑{((decode ⍺)=⍵)/(⍳7)}¨⍵ ⋄ i[⍋i]}
 ⍝ vector of correct segments lit up for the digit.
 
 
-⍝  --- unifinished! ---⌈
+⍝  --- unifinished! ---

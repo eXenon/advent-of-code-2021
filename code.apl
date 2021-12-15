@@ -346,3 +346,34 @@ data ← 1101,1,29,67,1102, ...
 ⍝ For n steps, the consumption is now n*(n+1)/2.
 
 ⌊/{+/{(|⍵)×((|⍵)+1)÷2}¨(data - ⍵)}¨(⍳1000)
+
+
+
+⍝   ==  Day 9  ==
+
+⍝ Turns out, reading from a file is boring.
+⍝ Let's do some real APL.
+
+data ← 100 100 ⍴ 9  8  9  9  8  9 ...
+
+islowpoint ← {m←⍵ ⋄ ∧/({(m[⍵[1];⍵[2]]=0)∨(m[⍵[1];⍵[2]]>m[2;2])}¨↓(4 2⍴1 2 2 1 2 3 3 2))}
+
+⍝     (m[⍵[1];⍵[2]]=0)∨(m[⍵[1];⍵[2]]>m[2;2])                            -> checks if m[2;2] is either lower than its neighbours or that the neighbours are 0 (boundary)
+⍝    {                                      }¨↓(4 2⍴1 2 2 1 2 3 3 2)    -> apply this to (1 2), (2 1), (3 2) and (2 3) to check for every neighbour of the center of a 3x3 matrix
+⍝ ∧/(                                                               )   -> check that _all_ the neighbours are lower 
+⍝
+⍝ This function gives us if the center of a 3x3 matrix is a lowpoint.
+
+lowpoints ← ({islowpoint ⍵}⌺3 3) (data + 1)
+
+⍝                          ⌺3 3)             -> use a 3x3 stencil to get every neighbourhood of every number in data 
+⍝            {islowpoint ⍵}                  -> apply islowpoint to make a bitmask
+⍝           (                    (data + 1)  -> apply it to (data + 1) in order to differentiate 0's in the data from the boundary
+
+score ← {m←,⍵ ⋄ bm←,⍺ ⋄ (+/bm)+(+/bm/m)}
+
+⍝        m←,⍵ ⋄                          -> unravel the data, assign to m
+⍝               bm←,⍺ ⋄                  -> unravel the bitmask of lowpoints, assign to bm
+⍝                       (+/bm)           -> count the lowpoints
+⍝                               (+/bm/m) -> get the height of each low point and sum
+⍝                              +         -> sum both for final score
